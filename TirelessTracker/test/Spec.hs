@@ -2,7 +2,6 @@ import MatchData
 import Data.Time
 import Test.Tasty
 import Test.Tasty.HUnit
-import Data.Text
 import Data.Aeson
 
 main :: IO ()
@@ -19,8 +18,8 @@ unitTests = testGroup "Unit tests"
         mStr = "Match {myDeck = Deck \"DeckName\", oppDeck = Deck \"Unknown\", result = (Win,0,0,0), date = 2018-04-17, eventType = \"Event Name\"}"
 
 
-exampleMatch = Match {myDeck = Deck (pack "DeckName"), 
-                      oppDeck = Deck (pack "Unknown"), 
+exampleMatch = Match {myDeck = Deck "DeckName", 
+                      oppDeck = Deck "Unknown", 
                       result = (Win, 0, 0, 0),
                       date = fromGregorian 2018 4 17,
                       eventType = "Event Name"
