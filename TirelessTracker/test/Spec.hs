@@ -2,6 +2,8 @@ import MatchData
 import Data.Time
 import Test.Tasty
 import Test.Tasty.HUnit
+import Data.Text
+import Data.Aeson
 
 main :: IO ()
 main = defaultMain tests
@@ -10,14 +12,16 @@ tests :: TestTree
 tests = testGroup "Tests" [unitTests]
 
 unitTests = testGroup "Unit tests"
-        [testCase "Match show test" $ (show m) `compare` mStr @?= EQ ]
+        [ testCase "Match show test" $ (show exampleMatch) `compare` mStr @?= EQ
+        , testCase "encode/decode JSON test" $ (decode (encode exampleMatch)) `compare` Just exampleMatch @?= EQ
+        ]
     where
-        m = Match {matchID = 0, 
-           myDeck = Deck "DeckName", 
-           oppDeck = Deck "Unknown", 
-           result = (Win, 0, 0, 0),
-           date = fromGregorian 2018 4 17,
-           eventType = "Event Name"
-          }
-        mStr = "Match {matchID = 0, myDeck = Deck \"DeckName\", oppDeck = Deck \"Unknown\", result = (Win,0,0,0), date = 2018-04-17, eventType = \"Event Name\"}"
+        mStr = "Match {myDeck = Deck \"DeckName\", oppDeck = Deck \"Unknown\", result = (Win,0,0,0), date = 2018-04-17, eventType = \"Event Name\"}"
 
+
+exampleMatch = Match {myDeck = Deck (pack "DeckName"), 
+                      oppDeck = Deck (pack "Unknown"), 
+                      result = (Win, 0, 0, 0),
+                      date = fromGregorian 2018 4 17,
+                      eventType = "Event Name"
+                     }
