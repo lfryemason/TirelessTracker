@@ -5,7 +5,6 @@ module MatchData
 , Deck (..)
 ) where
 
-
 import Data.Time
 import qualified Data.List
 import Data.Aeson
