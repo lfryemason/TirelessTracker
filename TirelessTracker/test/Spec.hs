@@ -1,7 +1,9 @@
 import MatchData
+import Matches
 import Data.Time
 import Test.Tasty
 import Test.Tasty.HUnit
+import Test.Tasty.Golden
 import Data.Aeson
 
 main :: IO ()
@@ -19,8 +21,12 @@ unitTests = testGroup "Unit tests"
 
 jsonTests :: TestTree
 jsonTests = testGroup "JSON Tests" $ [
-        testCase "encode/decode JSON test" $ (decode (encode exampleMatch)) `compare` Just exampleMatch @?= EQ
+        testCase "encode/decode JSON test" $ (decode (encode exampleMatch)) `compare` Just exampleMatch @?= EQ,
+        jsonGoldenEncode
     ]
+
+jsonGoldenEncode :: TestTree
+jsonGoldenEncode = goldenVsFile "Encoding List UTest" "test/jTests.json" "test/jTests1.json" (encodeMDs "test/jTests1.json" [m1,m2])
 
 exampleMatch = Match {myDeck = Deck "DeckName", 
                       oppDeck = Deck "Unknown", 

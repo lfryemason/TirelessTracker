@@ -53,3 +53,4 @@ tests:
     - tasty-hunit
     - tasty-smallcheck
     - tasty-quickcheck
+    - tasty-golden
