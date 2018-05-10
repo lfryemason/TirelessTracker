@@ -12,7 +12,7 @@ import GHC.Generics
 
 encodeMDs :: String -> [Match] -> IO ()
 encodeMDs fileName lMD = do
-    writeFile fileName $ show $ encode lMD
+    DBL.writeFile fileName $ encode lMD
 
 decodeMDs :: String -> IO (Maybe [Match])
 decodeMDs fileName = do
