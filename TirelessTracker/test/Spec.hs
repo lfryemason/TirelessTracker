@@ -26,7 +26,24 @@ jsonTests = testGroup "JSON Tests" $ [
     ]
 
 jsonGoldenEncode :: TestTree
-jsonGoldenEncode = goldenVsFile "Encoding List UTest" "test/jTests.json" "test/jTests1.json" (encodeMDs "test/jTests1.json" [m1,m2])
+jsonGoldenEncode = testGroup "golden encoding and decoding" [
+    goldenVsFile "Encoding List UTest" "test/jTests.json" "test/jTests1.json" (encodeMDs "test/jTests1.json" (generateMatches 1000)),
+    goldenVsFile "Decode-Encode are equal" "test/jTests.json" "test/jTests1.json" encodeDecode]
+
+encodeDecode :: IO()
+encodeDecode = do
+    ml <- decodeMDs "test/jTests.json"
+    case ml of
+        Nothing -> writeFile "test/jTests1.json" "Fail"
+        Just ms -> encodeMDs "test/jTests1.json" ms
+
+generateMatches :: Int -> [Match]
+generateMatches 0 = []
+generateMatches i = Match { myDeck = Deck "D&T"
+                          , oppDeck = Deck $ "Test" ++ (show i)
+                          , result = (Win, 2, 0, 0)
+                          , date = fromGregorian 2018 5 9
+                          , eventType = "FNM"} : generateMatches (i-1)
 
 exampleMatch = Match {myDeck = Deck "DeckName", oppDeck = Deck "Unknown", result = (Win, 0, 0, 0),date = fromGregorian 2018 4 17,eventType = "Event Name"}
 
