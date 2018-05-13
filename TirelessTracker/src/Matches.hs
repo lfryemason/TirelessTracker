@@ -16,7 +16,9 @@ encodeMDs fileName lMD = do
 
 decodeMDs :: String -> IO (Maybe [Match])
 decodeMDs fileName = do
-    (decode <$> getJsonFromFile fileName) :: IO(Maybe [Match])
+    --d <- (eitherDecode <$> (getJsonFromFile fileName)) :: IO (Either String [Match])
+    d <- (decode <$> (getJsonFromFile fileName)) :: IO (Maybe [Match])
+    return d
 
 getJsonFromFile :: String -> IO DBL.ByteString
 getJsonFromFile fileName = DBL.readFile fileName

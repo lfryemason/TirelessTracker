@@ -28,12 +28,7 @@ jsonTests = testGroup "JSON Tests" $ [
 jsonGoldenEncode :: TestTree
 jsonGoldenEncode = goldenVsFile "Encoding List UTest" "test/jTests.json" "test/jTests1.json" (encodeMDs "test/jTests1.json" [m1,m2])
 
-exampleMatch = Match {myDeck = Deck "DeckName", 
-                      oppDeck = Deck "Unknown", 
-                      result = (Win, 0, 0, 0),
-                      date = fromGregorian 2018 4 17,
-                      eventType = "Event Name"
-                     }
+exampleMatch = Match {myDeck = Deck "DeckName", oppDeck = Deck "Unknown", result = (Win, 0, 0, 0),date = fromGregorian 2018 4 17,eventType = "Event Name"}
 
 m1 = Match { myDeck = Deck "D&T"
            , oppDeck = Deck "Test1"
