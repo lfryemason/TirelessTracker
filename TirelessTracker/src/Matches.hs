@@ -14,11 +14,12 @@ encodeMDs :: String -> [Match] -> IO ()
 encodeMDs fileName lMD = do
     DBL.writeFile fileName $ encode lMD
 
-decodeMDs :: String -> IO (Maybe [Match])
+decodeMDs :: String -> IO ([Match])
 decodeMDs fileName = do
-    --d <- (eitherDecode <$> (getJsonFromFile fileName)) :: IO (Either String [Match])
     d <- (decode <$> (getJsonFromFile fileName)) :: IO (Maybe [Match])
-    return d
+    case d of
+        Nothing -> return []
+        Just ms -> return ms
 
 getJsonFromFile :: String -> IO DBL.ByteString
 getJsonFromFile fileName = DBL.readFile fileName

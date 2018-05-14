@@ -23,7 +23,7 @@ unitTests = testGroup "Unit tests"
 jsonTests :: TestTree
 jsonTests = testGroup "JSON Tests" $ [
         testCase "Encode then Decode JSON test" $ (decode (encode exampleMatch)) `compare` Just exampleMatch @?= EQ,
-        testCase "Decode 1000 matches" $ do {d <- (decodeMDs "test/jTests.json"); d `compare` Just (generateMatches 1000) @?= EQ},
+        testCase "Decode 1000 matches" $ do {d <- (decodeMDs "test/jTests.json"); d `compare` generateMatches 1000 @?= EQ},
         jsonGoldenEncode
     ]
 
@@ -35,9 +35,7 @@ jsonGoldenEncode = testGroup "Golden JSON Encoding and Decoding" [
 encodeDecode :: IO()
 encodeDecode = do
     ml <- decodeMDs "test/jTests.json"
-    case ml of
-        Nothing -> writeFile "test/jTests1.json" "Fail"
-        Just ms -> encodeMDs "test/jTests1.json" ms
+    encodeMDs "test/jTests1.json" ml
 
 generateMatches :: Int -> [Match]
 generateMatches 0 = []
