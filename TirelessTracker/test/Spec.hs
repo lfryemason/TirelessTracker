@@ -5,6 +5,7 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.Golden
 import Data.Aeson
+import Data.Maybe
 
 main :: IO ()
 main = defaultMain tests
@@ -21,14 +22,15 @@ unitTests = testGroup "Unit tests"
 
 jsonTests :: TestTree
 jsonTests = testGroup "JSON Tests" $ [
-        testCase "encode/decode JSON test" $ (decode (encode exampleMatch)) `compare` Just exampleMatch @?= EQ,
+        testCase "Encode then Decode JSON test" $ (decode (encode exampleMatch)) `compare` Just exampleMatch @?= EQ,
+        testCase "Decode 1000 matches" $ do {d <- (decodeMDs "test/jTests.json"); d `compare` Just (generateMatches 1000) @?= EQ},
         jsonGoldenEncode
     ]
 
 jsonGoldenEncode :: TestTree
-jsonGoldenEncode = testGroup "golden encoding and decoding" [
+jsonGoldenEncode = testGroup "Golden JSON Encoding and Decoding" [
     goldenVsFile "Encoding List UTest" "test/jTests.json" "test/jTests1.json" (encodeMDs "test/jTests1.json" (generateMatches 1000)),
-    goldenVsFile "Decode-Encode are equal" "test/jTests.json" "test/jTests1.json" encodeDecode]
+    goldenVsFile "Decode then Encode 1000 matches are equal" "test/jTests.json" "test/jTests1.json" encodeDecode]
 
 encodeDecode :: IO()
 encodeDecode = do
