@@ -1,3 +1,5 @@
 .stack-work/
 TirelessTracker.cabal
 *~
+/test/jTests1.json
+/test/jTests2.json

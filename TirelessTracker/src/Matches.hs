@@ -1,7 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Matches (
     encodeMDs,
-    decodeMDs
+    decodeMDs,
+    generateStats,
+    winLossDrawPerc
 ) where
 
 import qualified Data.List
@@ -10,16 +12,31 @@ import Data.Aeson
 import MatchData
 import GHC.Generics
 
-encodeMDs :: String -> [Match] -> IO ()
+encodeMDs :: FilePath -> [Match] -> IO ()
 encodeMDs fileName lMD = do
     DBL.writeFile fileName $ encode lMD
 
-decodeMDs :: String -> IO ([Match])
+decodeMDs :: FilePath -> IO ([Match])
 decodeMDs fileName = do
     d <- (decode <$> (getJsonFromFile fileName)) :: IO (Maybe [Match])
     case d of
         Nothing -> return []
         Just ms -> return ms
 
-getJsonFromFile :: String -> IO DBL.ByteString
+getJsonFromFile :: FilePath -> IO DBL.ByteString
 getJsonFromFile fileName = DBL.readFile fileName
+
+generateStats :: FilePath -> IO(Int, Int, Int)
+generateStats fileName = do
+    matches <- decodeMDs fileName
+    return $ winLossDrawPerc matches
+
+winLossDrawPerc :: [Match] -> (Int, Int, Int)
+winLossDrawPerc [] = (100, 0, 0)
+winLossDrawPerc matches = (win, 100 - win - draw, draw)
+    where
+        totNum = length matches
+        numWin = length $ filter (\m -> Win == fst (result m)) matches
+        win = numWin `div` totNum * 100
+        drawNum = length $ filter (\m -> Draw == fst (result m)) matches
+        draw = drawNum `div` totNum

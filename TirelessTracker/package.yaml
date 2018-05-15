@@ -25,6 +25,8 @@ dependencies:
 - aeson
 - text
 - bytestring
+- tasty
+- tasty-quickcheck
 
 library:
   source-dirs: src
@@ -50,8 +52,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - TirelessTracker
-    - tasty
     - tasty-hunit
     - tasty-smallcheck
-    - tasty-quickcheck
     - tasty-golden
