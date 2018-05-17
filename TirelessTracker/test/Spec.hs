@@ -23,8 +23,11 @@ unitTests = testGroup "Unit tests"
 
 statTests :: TestTree
 statTests = testGroup "Generating Statistics Tests" $ [
-        QC.testProperty "Win Draw and Loss percentages == 100" $ \matches -> let (w,l,d) = winLossDrawPerc (matches :: [Match]) in w + l + d == 100
-    ]
+        QC.testProperty "Win Draw and Loss percentages == 100" $ \matches -> let (w,l,d) = winLossDrawPerc (matches :: [Match]) in w + l + d == 100,
+        testCase "Comparing by myDeck" $ compareMatch [(\m -> D $ myDeck m )] m1 m2 @?= GT,
+        testCase "Comparing by result" $ compareMatch [(\m -> R $ result m )] m1 m2 @?= EQ,
+        testCase "Comparing by date" $ compareMatch [(\m -> Dy $ date m )] m1 m2 @?= LT
+        ]
 
 jsonTests :: TestTree
 jsonTests = testGroup "JSON Tests" $ [
@@ -53,14 +56,14 @@ generateMatches i = Match { myDeck = "D&T"
 
 exampleMatch = Match {myDeck = "DeckName", oppDeck = "Unknown", result = (Win, (0, 0)),date = fromGregorian 2018 4 17,eventType = "Event Name"}
 
-m1 = Match { myDeck = "D&T"
+m1 = Match { myDeck = "Test1"
            , oppDeck = "Test1"
            , result = (Win, (2, 0))
            , date = fromGregorian 2018 5 9
            , eventType = "FNM"}
 
-m2 = Match { myDeck = "D&T"
+m2 = Match { myDeck = "Test2"
            , oppDeck = "Test2"
            , result = (Win, (2, 0))
-           , date = fromGregorian 2018 5 9
+           , date = fromGregorian 2013 5 9
            , eventType = "FNM"}

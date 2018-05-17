@@ -3,6 +3,8 @@ module MatchData
 ( Match (..)
 , MDResult (..)
 , Deck
+, MatchTypes (..)
+, compareMatch
 ) where
 
 import Data.Time
@@ -16,7 +18,7 @@ data Match = Match { myDeck :: Deck,
                      result :: (MDResult, (Int, Int)),
                      date :: Day,
                      eventType :: String
-                } deriving (Show, Generic, Ord, Eq)
+                } deriving (Show, Generic, Eq)
 
 instance Arbitrary Match where
     arbitrary = do
@@ -33,7 +35,19 @@ instance Arbitrary Match where
 instance ToJSON Match
 instance FromJSON Match
 
-data MDResult = Win | Draw | Loss deriving (Eq, Show, Ord, Generic, Enum, Bounded)
+data MatchTypes = D Deck | R (MDResult, (Int, Int)) | Dy Day | S String deriving (Ord, Eq)
+
+instance Ord Match where
+    compare = compareMatch [(\m -> D $ myDeck m ), (\m -> D $ oppDeck m), (\m -> R $ result m), (\m -> Dy $ date m), (\m -> S $ eventType m)]
+
+compareMatch :: [(Match -> MatchTypes)] -> Match -> Match -> Ordering
+compareMatch [] a b = EQ
+compareMatch (c:cs) a b 
+    | (c a) > (c b) = LT
+    | (c a) < (c b) = GT
+    | otherwise = compareMatch cs a b
+
+data MDResult = Loss | Draw | Win deriving (Eq, Show, Ord, Generic, Enum, Bounded)
 
 instance Arbitrary MDResult where
     arbitrary = do arbitraryBoundedEnum
