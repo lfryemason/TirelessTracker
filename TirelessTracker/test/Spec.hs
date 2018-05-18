@@ -26,7 +26,11 @@ statTests = testGroup "Generating Statistics Tests" $ [
         QC.testProperty "Win Draw and Loss percentages == 100" $ \matches -> let (w,l,d) = winLossDrawPerc (matches :: [Match]) in w + l + d == 100,
         testCase "Comparing by myDeck" $ compareMatch [(\m -> D $ myDeck m )] m1 m2 @?= GT,
         testCase "Comparing by result" $ compareMatch [(\m -> R $ result m )] m1 m2 @?= EQ,
-        testCase "Comparing by date" $ compareMatch [(\m -> Dy $ date m )] m1 m2 @?= LT
+        testCase "Comparing by date" $ compareMatch [(\m -> Dy $ date m )] m1 m2 @?= LT,
+        QC.testProperty "Grouping by opponent deck generates correct number of lists" $ 
+            \matches i -> let repMatches = concatMap (replicate (i :: Int)) (matches :: [Match]) 
+                in
+                    length (groupMatches repMatches) == length matches
         ]
 
 jsonTests :: TestTree
@@ -63,6 +67,30 @@ m1 = Match { myDeck = "Test1"
            , eventType = "FNM"}
 
 m2 = Match { myDeck = "Test2"
+           , oppDeck = "Test2"
+           , result = (Win, (2, 0))
+           , date = fromGregorian 2013 5 9
+           , eventType = "FNM"}
+
+m3 = Match { myDeck = "Test3"
+           , oppDeck = "Test1"
+           , result = (Win, (2, 0))
+           , date = fromGregorian 2013 5 9
+           , eventType = "FNM"}
+           
+m4 = Match { myDeck = "Test4"
+           , oppDeck = "Test2"
+           , result = (Win, (2, 0))
+           , date = fromGregorian 2013 5 9
+           , eventType = "FNM"}
+
+m5 = Match { myDeck = "Test5"
+           , oppDeck = "Test2"
+           , result = (Win, (2, 0))
+           , date = fromGregorian 2013 5 9
+           , eventType = "FNM"}
+
+m6 = Match { myDeck = "Test6"
            , oppDeck = "Test2"
            , result = (Win, (2, 0))
            , date = fromGregorian 2013 5 9

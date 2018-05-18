@@ -3,7 +3,8 @@ module Matches (
     encodeMDs,
     decodeMDs,
     generateStats,
-    winLossDrawPerc
+    winLossDrawPerc,
+    groupMatches
 ) where
 
 import qualified Data.List
@@ -40,3 +41,6 @@ winLossDrawPerc matches = (win, 100 - win - draw, draw)
         win = numWin `div` totNum * 100
         drawNum = length $ filter (\m -> Draw == fst (result m)) matches
         draw = drawNum `div` totNum
+
+groupMatches :: [Match] -> [[Match]]
+groupMatches = undefined
