@@ -7,6 +7,7 @@ import Test.Tasty.Golden
 import Test.Tasty.QuickCheck as QC
 import Data.Aeson
 import Data.Maybe
+import qualified Data.Set as Set
 
 main :: IO ()
 main = defaultMain tests
@@ -30,12 +31,12 @@ statTests = testGroup "Generating Statistics Tests" $ [
         QC.testProperty "Grouping by opponent deck generates correct number of lists" $ testGroupMatches
         ]
 
-testGroupMatches :: [Match] -> Int -> Bool
-testGroupMatches matches i = 
+testGroupMatches :: Set.Set Match -> Int -> Bool
+testGroupMatches sMatch i = 
     let 
-        repMatches = concatMap (replicate i) matches 
+        repMatches = Set.foldr (\m a-> (replicate i m) ++ a) [] sMatch
     in
-        length (groupMatches repMatches) == length matches
+        length (groupMatches repMatches) == Set.size sMatch
 
 jsonTests :: TestTree
 jsonTests = testGroup "JSON Tests" $ [
