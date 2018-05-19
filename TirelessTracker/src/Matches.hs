@@ -43,4 +43,8 @@ winLossDrawPerc matches = (win, 100 - win - draw, draw)
         draw = drawNum `div` totNum
 
 groupMatches :: [Match] -> [[Match]]
-groupMatches = undefined
+groupMatches [] = [[]]
+groupMatches (m:matches) = (m:front) : groupMatches end
+    where
+        (front, end) = span (m ==) matches
+        
