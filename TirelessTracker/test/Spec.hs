@@ -28,13 +28,27 @@ statTests = testGroup "Generating Statistics Tests" $ [
         testCase "Comparing by myDeck" $ compareMatch [(\m -> D $ myDeck m )] m1 m2 @?= GT,
         testCase "Comparing by result" $ compareMatch [(\m -> R $ result m )] m1 m2 @?= EQ,
         testCase "Comparing by date" $ compareMatch [(\m -> Dy $ date m )] m1 m2 @?= LT,
-        QC.testProperty "Grouping by opponent deck generates correct number of lists" $ testGroupMatches
+        testGroupMatches
         ]
 
-testGroupMatches :: Set.Set Match -> Int -> Bool
-testGroupMatches sMatch i = 
+testGroupMatches :: TestTree
+testGroupMatches = testGroup "Grouping by opponent deck" [
+        QC.testProperty "Random list of replicated set gives same size" $ testGroupMatches1,
+        QC.testProperty "Random repeated list of set gives same size" $ testGroupMatches2
+    ]
+
+testGroupMatches1 :: Set.Set Match -> Int -> Bool
+testGroupMatches1 sMatch i = 
     let 
         repMatches = Set.foldr (\m a-> (replicate i m) ++ a) [] sMatch
+    in
+        length (groupMatches repMatches) == Set.size sMatch
+
+testGroupMatches2 :: Set.Set Match -> Int -> Bool
+testGroupMatches2 sMatch i = 
+    let 
+        matches = Set.foldr (\m a-> m:a) [] sMatch
+        repMatches = concat $ replicate i matches
     in
         length (groupMatches repMatches) == Set.size sMatch
 
