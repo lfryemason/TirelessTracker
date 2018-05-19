@@ -7,7 +7,7 @@ module Matches (
     groupMatches
 ) where
 
-import qualified Data.List
+import Data.List
 import qualified Data.ByteString.Lazy as DBL
 import Data.Aeson
 import MatchData
@@ -43,4 +43,10 @@ winLossDrawPerc matches = (win, 100 - win - draw, draw)
         draw = drawNum `div` totNum
 
 groupMatches :: [Match] -> [[Match]]
-groupMatches = undefined
+groupMatches matches = groupSortedMatches $ sortBy (compareMatch [(\m -> D $ oppDeck m)]) matches
+
+groupSortedMatches :: [Match] -> [[Match]]
+groupSortedMatches [] = []
+groupSortedMatches (m:matches) = (m:front):(groupSortedMatches end)
+        where
+            (front,end) = span (m==) matches

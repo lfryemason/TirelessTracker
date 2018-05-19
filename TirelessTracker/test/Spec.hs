@@ -37,20 +37,27 @@ testGroupMatches = testGroup "Grouping by opponent deck" [
         QC.testProperty "Random repeated list of set gives same size" $ testGroupMatches2
     ]
 
-testGroupMatches1 :: Set.Set Match -> Int -> Bool
+testGroupMatches1 :: Set.Set Deck -> Positive Int -> Bool
 testGroupMatches1 sMatch i = 
     let 
-        repMatches = Set.foldr (\m a-> (replicate i m) ++ a) [] sMatch
+        repMatches = Set.foldr (\d a-> (replicate (getPositive i) (exampleOppDeck d)) ++ a) [] sMatch
     in
         length (groupMatches repMatches) == Set.size sMatch
 
-testGroupMatches2 :: Set.Set Match -> Int -> Bool
+testGroupMatches2 :: Set.Set Deck -> Positive Int -> Bool
 testGroupMatches2 sMatch i = 
     let 
-        matches = Set.foldr (\m a-> m:a) [] sMatch
-        repMatches = concat $ replicate i matches
+        matches = Set.foldr (\d a-> (exampleOppDeck d):a) [] sMatch
+        repMatches = concat $ replicate (getPositive i) matches
     in
         length (groupMatches repMatches) == Set.size sMatch
+
+exampleOppDeck :: Deck -> Match
+exampleOppDeck d = Match { myDeck = "Test1"
+                         , oppDeck = d
+                         , result = (Win, (2, 0))
+                         , date = fromGregorian 2018 5 9
+                         , eventType = "FNM"}
 
 jsonTests :: TestTree
 jsonTests = testGroup "JSON Tests" $ [
