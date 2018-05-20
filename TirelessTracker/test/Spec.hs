@@ -33,27 +33,48 @@ statTests = testGroup "Generating Statistics Tests" $ [
 
 testGroupMatches :: TestTree
 testGroupMatches = testGroup "Grouping by opponent deck" [
-        QC.testProperty "Random list of replicated set gives same size" $ testGroupMatches1,
-        QC.testProperty "Random repeated list of set gives same size" $ testGroupMatches2
+        QC.testProperty "Random list of replicated set gives same size, by oppDeck" $ testGroupMatches1,
+        QC.testProperty "Random repeated list of set gives same size, by myDeck and oppDeck" $ testGroupMatches2,
+        QC.testProperty "Two Random repeated list of set with different myDeck gives same size" $ testGroupMatches3,
+        QC.testProperty "Random repeated list of set for oppDeck tested for myDeck gives size 1" $ testGroupMatches4
     ]
 
 testGroupMatches1 :: Set.Set Deck -> Positive Int -> Bool
 testGroupMatches1 sMatch i = 
     let 
-        repMatches = Set.foldr (\d a-> (replicate (getPositive i) (exampleOppDeck d)) ++ a) [] sMatch
+        repMatches = Set.foldr (\d a-> (replicate (getPositive i) (exampleOppDeck "Test" d)) ++ a) [] sMatch
     in
-        length (groupMatches repMatches) == Set.size sMatch
+        length (groupMatches [(\m -> D $ oppDeck m )] repMatches) == Set.size sMatch
 
 testGroupMatches2 :: Set.Set Deck -> Positive Int -> Bool
 testGroupMatches2 sMatch i = 
     let 
-        matches = Set.foldr (\d a-> (exampleOppDeck d):a) [] sMatch
+        matches = Set.foldr (\d a-> (exampleOppDeck "Test" d):a) [] sMatch
         repMatches = concat $ replicate (getPositive i) matches
     in
-        length (groupMatches repMatches) == Set.size sMatch
+        length (groupMatches [(\m -> D $ myDeck m ),(\m -> D $ oppDeck m )] repMatches) == Set.size sMatch
+        
+testGroupMatches3 :: Set.Set Deck -> Positive Int -> Bool
+testGroupMatches3 sMatch i = 
+    let 
+        matches1 = Set.foldr (\d a-> (exampleOppDeck "Test1" d):a) [] sMatch
+        matches = Set.foldr (\d a-> (exampleOppDeck "Test" d):a) [] sMatch ++ matches1
+        repMatches = concat $ replicate (getPositive i) matches
+    in
+        length (groupMatches [(\m -> D $ oppDeck m )] repMatches) == Set.size sMatch
 
-exampleOppDeck :: Deck -> Match
-exampleOppDeck d = Match { myDeck = "Test1"
+testGroupMatches4 :: Set.Set Deck -> Positive Int -> Bool
+testGroupMatches4 sMatch i
+    | Set.null sMatch = True
+    | otherwise = 
+        let 
+            matches = Set.foldr (\d a-> (exampleOppDeck "Test" d):a) [] sMatch
+            repMatches = concat $ replicate (getPositive i) matches
+        in
+            length (groupMatches [(\m -> D $ myDeck m )] repMatches) == 1
+
+exampleOppDeck :: Deck -> Deck -> Match
+exampleOppDeck m d = Match { myDeck = m
                          , oppDeck = d
                          , result = (Win, (2, 0))
                          , date = fromGregorian 2018 5 9

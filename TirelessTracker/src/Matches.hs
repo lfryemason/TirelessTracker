@@ -42,11 +42,11 @@ winLossDrawPerc matches = (win, 100 - win - draw, draw)
         drawNum = length $ filter (\m -> Draw == fst (result m)) matches
         draw = drawNum `div` totNum
 
-groupMatches :: [Match] -> [[Match]]
-groupMatches matches = groupSortedMatches $ sortBy (compareMatch [(\m -> D $ oppDeck m)]) matches
+groupMatches :: [(Match -> MatchTypes)] -> [Match] -> [[Match]]
+groupMatches fs matches = groupSortedMatches fs $ sortBy (compareMatch fs) matches
 
-groupSortedMatches :: [Match] -> [[Match]]
-groupSortedMatches [] = []
-groupSortedMatches (m:matches) = (m:front):(groupSortedMatches end)
+groupSortedMatches :: [(Match -> MatchTypes)] -> [Match] -> [[Match]]
+groupSortedMatches _ [] = []
+groupSortedMatches f (m:matches) = (m:front):(groupSortedMatches f end)
         where
-            (front,end) = span (m==) matches
+            (front,end) = span (\m1 -> compareMatch f m m1 == EQ) matches
