@@ -4,7 +4,9 @@ module Matches (
     decodeMDs,
     generateStats,
     winLossDrawPerc,
-    groupMatches
+    groupMatches,
+    oppDeckWinPerc,
+    fstTriple
 ) where
 
 import Data.List
@@ -50,3 +52,18 @@ groupSortedMatches _ [] = []
 groupSortedMatches f (m:matches) = (m:front):(groupSortedMatches f end)
         where
             (front,end) = span (\m1 -> compareMatch f m m1 == EQ) matches
+
+oppDeckWinPerc :: [Match] -> [(Deck, Int, [Match])]
+oppDeckWinPerc matches = oppDeckWinPercRec $ groupMatches [(\m -> D $ oppDeck m)] matches
+
+oppDeckWinPercRec :: [[Match]] -> [(Deck, Int, [Match])]
+oppDeckWinPercRec [] = []
+oppDeckWinPercRec (ms:gMatches) =
+    let
+        deck = oppDeck $ head ms
+        (winPerc,_,_) = winLossDrawPerc ms
+    in
+        (deck, winPerc, ms):oppDeckWinPercRec gMatches
+
+fstTriple :: (a, b, c) -> a
+fstTriple (x, y, z) = x 
