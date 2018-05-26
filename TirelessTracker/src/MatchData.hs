@@ -12,6 +12,7 @@ import Data.Time
 import qualified Data.List
 import Data.Aeson
 import GHC.Generics
+import Data.Maybe
 import Test.Tasty.QuickCheck
 
 data Match = Match { myDeck :: Deck,
@@ -25,12 +26,11 @@ instance Arbitrary Match where
     arbitrary = do
         m <- arbitrary
         o <- arbitrary
-        r <- arbitrary
         w <- choose (0,2) :: Gen Int
         l <- choose (0,2) :: Gen Int
         d <- arbitrary
         e <- arbitrary
-        return Match {myDeck = m, oppDeck = o, result = r, date = d, eventType = e}
+        return Match {myDeck = m, oppDeck = o, result = fromJust $ newResult (w,l), date = d, eventType = e}
 
 
 instance ToJSON Match
@@ -50,7 +50,7 @@ compareMatch (c:cs) a b
 
 newResult :: (Int, Int) -> Maybe (MDResult, (Int, Int))
 newResult (w,l) =
-    if w + l > 3 || w < 0 || l < 0 then
+    if w > 2 || l > 2 || w < 0 || l < 0 then
         Nothing 
     else if w == 2 then
         Just (Win, (w,l))
@@ -58,7 +58,6 @@ newResult (w,l) =
         Just (Loss, (w,l))
     else
         Just (Draw, (w,l))
-
 
 data MDResult = Loss | Draw | Win deriving (Eq, Show, Ord, Generic, Enum, Bounded)
 
