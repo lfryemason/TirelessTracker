@@ -5,6 +5,7 @@ module MatchData
 , Deck
 , MatchTypes (..)
 , compareMatch
+, newResult
 ) where
 
 import Data.Time
@@ -46,6 +47,18 @@ compareMatch (c:cs) a b
     | (c a) > (c b) = LT
     | (c a) < (c b) = GT
     | otherwise = compareMatch cs a b
+
+newResult :: (Int, Int) -> Maybe (MDResult, (Int, Int))
+newResult (w,l) =
+    if w + l > 3 || w < 0 || l < 0 then
+        Nothing 
+    else if w == 2 then
+        Just (Win, (w,l))
+    else if l == 2 then
+        Just (Loss, (w,l))
+    else
+        Just (Draw, (w,l))
+
 
 data MDResult = Loss | Draw | Win deriving (Eq, Show, Ord, Generic, Enum, Bounded)
 
