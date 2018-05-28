@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
-module Matches (
+module Matches
+(
     encodeMDs,
     decodeMDs,
     generateStats,

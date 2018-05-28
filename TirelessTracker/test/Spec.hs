@@ -1,6 +1,5 @@
 import MatchData
 import Matches
-import Data.Time
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.Golden
@@ -77,7 +76,7 @@ exampleOppDeck :: Deck -> Deck -> Match
 exampleOppDeck m d = Match { myDeck = m
                          , oppDeck = d
                          , result = (Win, (2, 0))
-                         , date = fromGregorian 2018 5 9
+                         , date = makeDay 2018 5 9
                          , eventType = "FNM"}
 
 jsonTests :: TestTree
@@ -102,19 +101,19 @@ generateMatches 0 = []
 generateMatches i = Match { myDeck = "D&T"
                           , oppDeck = "Test" ++ (show i)
                           , result = (Win, (2, 0))
-                          , date = fromGregorian 2018 5 9
+                          , date = makeDay 2018 5 9
                           , eventType = "FNM"} : generateMatches (i-1)
 
-exampleMatch = Match {myDeck = "DeckName", oppDeck = "Unknown", result = (Win, (0, 0)),date = fromGregorian 2018 4 17,eventType = "Event Name"}
+exampleMatch = Match {myDeck = "DeckName", oppDeck = "Unknown", result = (Win, (0, 0)),date = makeDay 2018 4 17,eventType = "Event Name"}
 
 m1 = Match { myDeck = "Test1"
            , oppDeck = "Test1"
            , result = (Win, (2, 0))
-           , date = fromGregorian 2018 5 9
+           , date = makeDay 2018 5 9
            , eventType = "FNM"}
 
 m2 = Match { myDeck = "Test2"
            , oppDeck = "Test2"
            , result = (Win, (2, 0))
-           , date = fromGregorian 2013 5 9
+           , date = makeDay 2013 5 9
            , eventType = "FNM"}

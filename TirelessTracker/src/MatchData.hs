@@ -1,11 +1,13 @@
 {-# LANGUAGE DeriveGeneric #-}
 module MatchData
-( Match (..)
-, MDResult (..)
-, Deck
-, MatchTypes (..)
-, compareMatch
-, newResult
+(
+    Match (..),
+    MDResult (..),
+    Deck,
+    MatchTypes (..),
+    compareMatch,
+    newResult,
+makeDay
 ) where
 
 import Data.Time
@@ -75,3 +77,6 @@ instance Arbitrary Day where
         m <- choose (1,12)
         d <- choose (1,31)
         return $ fromGregorian y m d
+
+makeDay :: Integer -> Int -> Int -> Day
+makeDay = fromGregorian
