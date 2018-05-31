@@ -13,6 +13,7 @@ data Event =
     EAddMatch Match |
     EShow |
     EHelp |
+    ELoad String |
     EExit 
     deriving (Eq, Show)
 
@@ -22,5 +23,5 @@ stateUpdate as _ = as
 
 helpMessage :: IO ()
 helpMessage = do
-    helpMess <- readFile "src/HelpMessage.in"
+    helpMess <- readFile "res/HelpMessage.in"
     putStrLn helpMess

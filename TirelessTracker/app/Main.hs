@@ -14,7 +14,7 @@ import Data.Maybe
 import Data.Char
 
 main :: IO ()
-main = run (AppState []) []
+main = run (AppState []) [ELoad "res/match.json"]
 
 cmdUpdate :: AppState -> IO [Event]
 -- TODO: Better show match function
@@ -28,6 +28,11 @@ cmdUpdate (AppState matches) = do
         case newMatch of
             Nothing -> return []
             Just match -> return [EAddMatch match]
+    else if isPrefixOf "load " (map toLower command) then
+        let
+            loadFile = fromJust $ stripPrefix "load " command
+        in
+            return [ELoad loadFile] 
     else if (map toLower command) == "show" then do
         putStrLn $ show matches
         return [EShow]
@@ -46,6 +51,11 @@ run state [] = do
 
 run _ (EExit:_) =
     return ()
+
+-- exception handling for wrong file
+run (AppState matches) ((ELoad fileName):events) = do
+    newMatches <- decodeMDs fileName
+    run (AppState (matches ++ newMatches)) events
 
 run state (event:events) = do
         run newState events
