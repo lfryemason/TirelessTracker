@@ -1,0 +1,12 @@
+Tireless Tracker Help:
+
+Commands:
+
+help           - Displays help information
+add [Match]    - Adds the match argument if it is in MATCHFORMAT
+show           - Displays the list of matches
+exit           - Exits Tireless Tracker
+
+Other:
+
+MATCHFORMAT    - [deck name] [opponent deck name] [# of won games] [# of lost games] [year] [month as number] [day of month] [event name]

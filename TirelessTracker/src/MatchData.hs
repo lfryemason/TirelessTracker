@@ -7,7 +7,8 @@ module MatchData
     MatchTypes (..),
     compareMatch,
     newResult,
-makeDay
+    makeDay,
+    parseMatch
 ) where
 
 import Data.Time
@@ -16,7 +17,10 @@ import Data.Aeson
 import GHC.Generics
 import Data.Maybe
 import Test.Tasty.QuickCheck
+import Text.Read
 
+
+--TODO: Add format
 data Match = Match { myDeck :: Deck,
                      oppDeck :: Deck,
                      result :: (MDResult, (Int, Int)),
@@ -80,3 +84,37 @@ instance Arbitrary Day where
 
 makeDay :: Integer -> Int -> Int -> Day
 makeDay = fromGregorian
+
+parseMatch :: String -> Maybe Match
+parseMatch matchStr =
+    let
+        matchArgs = words matchStr
+    in
+        if (length matchArgs) /= 8 then
+            Nothing
+        else if (readMaybe (matchArgs !! 2) ::Maybe Int) == Nothing || 
+                (readMaybe (matchArgs !! 3) ::Maybe Int) == Nothing then
+            Nothing
+        else if (readMaybe (matchArgs !! 4) ::Maybe Integer) == Nothing || 
+                (readMaybe (matchArgs !! 5) ::Maybe Int) == Nothing || 
+                (readMaybe (matchArgs !! 6) ::Maybe Int) == Nothing then
+            Nothing
+        else
+            let
+                myD = matchArgs !! 0
+                oppD = matchArgs !! 1
+                w = read (matchArgs !! 2) ::Int
+                l = read (matchArgs !! 3) ::Int
+                res = newResult (w,l)
+                year = read (matchArgs !! 4) ::Integer
+                month = read (matchArgs !! 5) ::Int
+                day = read (matchArgs !! 6) ::Int
+                event = matchArgs !! 7
+            in
+            case res of
+                Nothing -> Nothing
+                Just res -> Just Match { myDeck = myD
+                , oppDeck = oppD
+                , result = res
+                , date = makeDay year month day
+                , eventType = event}

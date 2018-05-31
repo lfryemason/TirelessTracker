@@ -6,6 +6,5 @@ module AppState
 import MatchData
     
 data AppState = 
-    AppState [Match] |
-    ShowMatches [Match]
+    AppState [Match]
     deriving (Eq,Show)

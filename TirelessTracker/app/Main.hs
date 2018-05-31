@@ -18,28 +18,28 @@ main = run (AppState []) []
 
 cmdUpdate :: AppState -> IO [Event]
 -- TODO: Better show match function
--- TODO: Parse match from string function
-cmdUpdate (AppState matches) = do
+cmdUpdate (AppState matches) = do 
     putStrLn $ "Tireless Tracker: "
     command <- getLine
     if isPrefixOf "add " (map toLower command) then
-        return [EAddMatch (Match {myDeck = "DeckName",
-                                  oppDeck = "Unknown",
-                                  result = (Win, (0, 0)),
-                                  date = makeDay 2018 4 17,
-                                  eventType = "Event Name"})]
-    else if (map toLower command) == "show" then
+        let
+            newMatch = parseMatch $ fromJust $ stripPrefix "add" command
+        in
+        case newMatch of
+            Nothing -> return []
+            Just match -> return [EAddMatch match]
+    else if (map toLower command) == "show" then do
+        putStrLn $ show matches
         return [EShow]
+    else if (map toLower command) == "help" then do
+        helpMessage
+        return [EHelp]
     else if (map toLower command) == "exit" then
         return [EExit]
     else
         return []
 
 run :: AppState -> [Event] -> IO ()
-run (ShowMatches matches) events = do
-    putStrLn $ show matches
-    run (AppState matches) events
-
 run state [] = do
     events <- cmdUpdate state
     run state events

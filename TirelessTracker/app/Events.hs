@@ -1,7 +1,8 @@
 module Events
 (
     Event (..),
-    stateUpdate
+    stateUpdate,
+    helpMessage
 ) where
 
 import AppState
@@ -11,10 +12,15 @@ import Matches
 data Event =
     EAddMatch Match |
     EShow |
+    EHelp |
     EExit 
     deriving (Eq, Show)
 
 stateUpdate :: AppState -> Event -> AppState
 stateUpdate (AppState matches) (EAddMatch match) = AppState (match:matches)
-stateUpdate (AppState matches) (EShow)           = ShowMatches matches
 stateUpdate as _ = as
+
+helpMessage :: IO ()
+helpMessage = do
+    helpMess <- readFile "src/HelpMessage.in"
+    putStrLn helpMess
