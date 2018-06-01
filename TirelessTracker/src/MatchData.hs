@@ -26,7 +26,7 @@ data Match = Match { myDeck :: Deck,
                      result :: (MDResult, (Int, Int)),
                      date :: Day,
                      eventType :: String
-                } deriving (Show, Generic, Eq)
+                } deriving (Generic, Eq)
 
 instance Arbitrary Match where
     arbitrary = do
@@ -38,6 +38,17 @@ instance Arbitrary Match where
         e <- arbitrary
         return Match {myDeck = m, oppDeck = o, result = fromJust $ newResult (w,l), date = d, eventType = e}
 
+instance Show Match where
+    --show :: Match -> String
+    show match = 
+            deck ++ " vs " ++ opp ++ ": " ++ res ++ ". " ++ day ++ " at " ++ event
+        where
+            deck = myDeck match
+            opp = oppDeck match
+            (mRes, games) = result match
+            res = show mRes ++ " " ++ show games
+            day = show $ date match
+            event = eventType match
 
 instance ToJSON Match
 instance FromJSON Match

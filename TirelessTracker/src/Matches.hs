@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Matches
 (
+    showMatches,
     encodeMDs,
     decodeMDs,
     generateStats,
@@ -15,6 +16,10 @@ import qualified Data.ByteString.Lazy as DBL
 import Data.Aeson
 import MatchData
 import GHC.Generics
+
+showMatches :: [Match] -> String
+showMatches [] = "\n"
+showMatches (m:ms) = "\n" ++ show m ++ showMatches ms
 
 encodeMDs :: FilePath -> [Match] -> IO ()
 encodeMDs fileName lMD = do

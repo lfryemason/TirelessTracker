@@ -19,7 +19,7 @@ unitTests = testGroup "Unit tests"
         [ testCase "Match show test" $ (show exampleMatch) `compare` mStr @?= EQ
         ]
     where
-        mStr = "Match {myDeck = \"DeckName\", oppDeck = \"Unknown\", result = (Win,(0,0)), date = 2018-04-17, eventType = \"Event Name\"}"
+        mStr = "DeckName vs Unknown: Win (0,0). 2018-04-17 at Event Name"
 
 statTests :: TestTree
 statTests = testGroup "Generating Statistics Tests" $ [

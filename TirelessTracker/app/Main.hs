@@ -29,7 +29,7 @@ cmdUpdate (AppState matches) = do
             Nothing -> return []
             Just match -> return [EAddMatch match]
     else if (map toLower command) == "show" then do
-        putStrLn $ show matches
+        putStrLn $ showMatches matches
         return [EShow]
     else if (map toLower command) == "help" then do
         helpMessage
