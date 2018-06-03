@@ -13,9 +13,9 @@ import Matches
 data Event =
     EAddMatch Match |
     EShow |
-    EHelp |
     ELoad String |
     EStats |
+    EHelp |
     EExit 
     deriving (Eq, Show)
 
@@ -23,17 +23,41 @@ stateUpdate :: AppState -> Event -> AppState
 stateUpdate (AppState matches) (EAddMatch match) = AppState (match:matches)
 stateUpdate as _ = as
 
-eventAction :: Event -> AppState -> IO [Event]
-eventAction (EAddMatch newMatch) (AppState matches) =
-    case newMatch of
-        Nothing -> return []
-        Just match -> return [EAddMatch match]
---eventAction EShow (Appstate matches) =
---eventAction EHelp (Appstate matches) =
---eventAction (ELoad fileName (Appstate matches) =
---eventAction EStats (Appstate matches) =
---eventAction EExit (Appstate matches) =
-eventAction _ _ = return []
+eventAction :: String -> Event -> AppState -> IO [Event]
+eventAction command (EAddMatch newMatches) state =
+    let
+        newMatch = parseMatch $ drop 4 command
+    in
+        case newMatch of
+            Nothing -> do
+                putStrLn "Invalid match, use the following format:\n[deck name] [opponent deck name] [# of won games] [# of lost games] [year] [month as number] [day of month] [event name]\n"
+                return []
+            Just match -> return [EAddMatch match]
+
+eventAction command EShow (AppState matches) = do
+    putStrLn $ showMatches matches
+    return [EShow]
+
+eventAction command (ELoad fileName) state =
+    let
+        loadFile = drop 5 command
+    in
+        return [ELoad loadFile] 
+
+eventAction command EStats (AppState matches) =
+        let 
+            (w, l, d) = winLossDrawPerc matches
+        in do
+            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "% draw.\n"
+            return [EStats]
+
+eventAction command EHelp state = do
+    helpMessage
+    return [EHelp]
+
+eventAction _ _ _ = return []
+
+
 helpMessage :: IO ()
 helpMessage = do
     helpMess <- readFile "res/HelpMessage.in"

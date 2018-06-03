@@ -8,7 +8,8 @@ module MatchData
     compareMatch,
     newResult,
     makeDay,
-    parseMatch
+    parseMatch,
+    emptyMatch
 ) where
 
 import Data.Time
@@ -129,3 +130,10 @@ parseMatch matchStr =
                 , result = res
                 , date = makeDay year month day
                 , eventType = event}
+
+emptyMatch :: Match
+emptyMatch = Match { myDeck = ""
+                   , oppDeck = ""
+                   , result = (Draw, (1,1))
+                   , date = makeDay 0 0 0
+                   , eventType = ""}

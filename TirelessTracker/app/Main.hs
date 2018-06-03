@@ -4,7 +4,6 @@ module Main
     main
 ) where
 
-import Lib
 import AppState
 import MatchData
 import Matches
@@ -17,32 +16,19 @@ main :: IO ()
 main = run (AppState []) [ELoad "res/match.json"]
 
 cmdUpdate :: AppState -> IO [Event]
--- TODO: Better show match function
-cmdUpdate (AppState matches) = do 
+cmdUpdate state = do 
     putStrLn $ "Tireless Tracker: "
     command <- getLine
     if isPrefixOf "add " (map toLower command) then
-        let
-            newMatch = parseMatch $ drop 4 command
-        in
-            eventAction (EAddMatch newMatch) (AppState matches)
+            eventAction command (EAddMatch emptyMatch) state
+    else if (map toLower command) == "show" then
+        eventAction command EShow state
     else if isPrefixOf "load " (map toLower command) then
-        let
-            loadFile = drop 5 command
-        in
-            return [ELoad loadFile] 
-    else if (map toLower command) == "show" then do
-        putStrLn $ showMatches matches
-        return [EShow]
+        eventAction command (ELoad "") state
     else if (map toLower command) == "stats" then
-        let 
-            (w, l, d) = winLossDrawPerc matches
-        in do
-            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "% draw."
-            return [EStats]
-    else if (map toLower command) == "help" then do
-        helpMessage
-        return [EHelp]
+        eventAction command EStats state
+    else if (map toLower command) == "help" then 
+        eventAction command EHelp state
     else if (map toLower command) == "exit" then
         return [EExit]
     else
