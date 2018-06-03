@@ -46,9 +46,9 @@ winLossDrawPerc matches = (win, 100 - win - draw, draw)
     where
         totNum = length matches
         numWin = length $ filter (\m -> Win == fst (result m)) matches
-        win = numWin `div` totNum * 100
+        win = round $ (fromIntegral numWin) / (fromIntegral totNum) * 100
         drawNum = length $ filter (\m -> Draw == fst (result m)) matches
-        draw = drawNum `div` totNum
+        draw = round $ (fromIntegral drawNum) / (fromIntegral totNum) * 100
 
 groupMatches :: [(Match -> MatchTypes)] -> [Match] -> [[Match]]
 groupMatches fs matches = groupSortedMatches fs $ sortBy (compareMatch fs) matches

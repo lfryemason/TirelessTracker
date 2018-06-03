@@ -23,19 +23,23 @@ cmdUpdate (AppState matches) = do
     command <- getLine
     if isPrefixOf "add " (map toLower command) then
         let
-            newMatch = parseMatch $ fromJust $ stripPrefix "add" command
+            newMatch = parseMatch $ drop 4 command
         in
-        case newMatch of
-            Nothing -> return []
-            Just match -> return [EAddMatch match]
+            eventAction (EAddMatch newMatch) (AppState matches)
     else if isPrefixOf "load " (map toLower command) then
         let
-            loadFile = fromJust $ stripPrefix "load " command
+            loadFile = drop 5 command
         in
             return [ELoad loadFile] 
     else if (map toLower command) == "show" then do
         putStrLn $ showMatches matches
         return [EShow]
+    else if (map toLower command) == "stats" then
+        let 
+            (w, l, d) = winLossDrawPerc matches
+        in do
+            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "% draw."
+            return [EStats]
     else if (map toLower command) == "help" then do
         helpMessage
         return [EHelp]
