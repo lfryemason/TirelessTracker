@@ -25,6 +25,8 @@ cmdUpdate state = do
         eventAction command EShow state
     else if isPrefixOf "load " (map toLower command) then
         eventAction command (ELoad "") state
+    else if isPrefixOf "save" (map toLower command) then
+        eventAction command (ESave "") state
     else if (map toLower command) == "stats" then
         eventAction command EStats state
     else if (map toLower command) == "help" then 
@@ -42,10 +44,13 @@ run state [] = do
 run _ (EExit:_) =
     return ()
 
--- exception handling for wrong file
 run (AppState matches) ((ELoad fileName):events) = do
     newMatches <- decodeMDs fileName
     run (AppState (matches ++ newMatches)) events
+
+run (AppState matches) ((ESave fileName):events) = do
+    encodeMDs fileName matches
+    run (AppState matches) events
 
 run state (event:events) = do
         run newState events

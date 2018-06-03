@@ -9,11 +9,13 @@ module Events
 import AppState
 import MatchData
 import Matches
+import Data.Char
 
 data Event =
     EAddMatch Match |
     EShow |
     ELoad String |
+    ESave String |
     EStats |
     EHelp |
     EExit 
@@ -38,11 +40,22 @@ eventAction command EShow (AppState matches) = do
     putStrLn $ showMatches matches
     return [EShow]
 
-eventAction command (ELoad fileName) state =
+eventAction command (ELoad empty) state =
     let
-        loadFile = drop 5 command
+        suffixCmd = drop 4 command
+        fileName = dropWhile (isSpace) suffixCmd
     in
-        return [ELoad loadFile] 
+        return [ELoad fileName]
+
+eventAction command (ESave empty) state =
+    let
+        suffixCmd = drop 4 command
+        fileName = dropWhile (isSpace) suffixCmd
+    in 
+        if fileName == "" then
+            return [ESave "res/match.json"]
+        else 
+            return [ESave fileName]
 
 eventAction command EStats (AppState matches) =
         let 
