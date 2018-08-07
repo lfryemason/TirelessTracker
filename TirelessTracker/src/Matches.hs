@@ -7,7 +7,7 @@ module Matches
     generateStats,
     winLossDrawPerc,
     groupMatches,
-    oppDeckWinPerc,
+    oppDeckWinPercReport,
     fstTriple
 ) where
 
@@ -58,6 +58,16 @@ groupSortedMatches _ [] = []
 groupSortedMatches f (m:matches) = (m:front):(groupSortedMatches f end)
         where
             (front,end) = span (\m1 -> compareMatch f m m1 == EQ) matches
+
+oppDeckWinPercReport :: [Match] -> String
+oppDeckWinPercReport matches =
+        intercalate "\n" resList
+    where
+        resList = map showOppDeckWinPerc (oppDeckWinPerc matches)
+
+showOppDeckWinPerc :: (Deck, Int, [Match]) -> String
+showOppDeckWinPerc (deck, winperc, matches) = 
+    deck ++ " - "++ show winperc ++ "% won"
 
 oppDeckWinPerc :: [Match] -> [(Deck, Int, [Match])]
 oppDeckWinPerc matches = oppDeckWinPercRec $ groupMatches [(\m -> D $ oppDeck m)] matches

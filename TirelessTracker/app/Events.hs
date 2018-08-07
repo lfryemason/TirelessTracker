@@ -60,8 +60,10 @@ eventAction command (ESave empty) state =
 eventAction command EStats (AppState matches) =
         let 
             (w, l, d) = winLossDrawPerc matches
+            numMatches = length matches
         in do
-            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "% draw.\n"
+            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "% draw in" ++ show numMatches ++ "games.\n"
+            putStrLn $ oppDeckWinPercReport matches ++"\n"
             return [EStats]
 
 eventAction command EHelp state = do
