@@ -19,22 +19,29 @@ cmdUpdate :: AppState -> IO [Event]
 cmdUpdate state = do 
     putStrLn $ "Tireless Tracker: "
     command <- getLine
-    if isPrefixOf "add " (map toLower command) then
-            eventAction command (EAddMatch emptyMatch) state
-    else if (map toLower command) == "show" then
-        eventAction command EShow state
-    else if isPrefixOf "load " (map toLower command) then
-        eventAction command (ELoad "") state
-    else if isPrefixOf "save" (map toLower command) then
-        eventAction command (ESave "") state
-    else if (map toLower command) == "stats" then
-        eventAction command EStats state
-    else if (map toLower command) == "help" then 
-        eventAction command EHelp state
-    else if (map toLower command) == "exit" then
-        return [EExit]
-    else
-        return []
+    cmdOptions command state
+
+cmdOptions :: String -> AppState -> IO [Event]
+cmdOptions command state = 
+    let
+        commandLow = map toLower command
+    in
+        if isPrefixOf "add " commandLow then
+                eventAction command (EAddMatch emptyMatch) state
+        else if isPrefixOf "show" commandLow then
+            eventAction command EShow state
+        else if isPrefixOf "load " commandLow then
+            eventAction command (ELoad "") state
+        else if isPrefixOf "save" commandLow then
+            eventAction command (ESave "") state
+        else if commandLow == "stats" then
+            eventAction command EStats state
+        else if commandLow == "help" then 
+            eventAction command EHelp state
+        else if commandLow == "exit" then
+            return [EExit]
+        else
+            return []
 
 run :: AppState -> [Event] -> IO ()
 run state [] = do

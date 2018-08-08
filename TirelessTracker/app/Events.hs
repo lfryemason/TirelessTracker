@@ -36,9 +36,13 @@ eventAction command (EAddMatch newMatches) state =
                 return []
             Just match -> return [EAddMatch match]
 
-eventAction command EShow (AppState matches) = do
-    putStrLn $ showMatches matches
-    return [EShow]
+eventAction command EShow (AppState matches) =
+    let 
+        suffixCmd = drop 5 command
+        argMatches = parseCommands suffixCmd matches
+    in do
+        putStrLn $ showMatches argMatches
+        return [EShow]
 
 eventAction command (ELoad empty) state =
     let
@@ -62,7 +66,7 @@ eventAction command EStats (AppState matches) =
             (w, l, d) = winLossDrawPerc matches
             numMatches = length matches
         in do
-            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "% draw in" ++ show numMatches ++ "games.\n"
+            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "%. " ++ show numMatches ++ " total games.\n"
             putStrLn $ oppDeckWinPercReport matches ++"\n"
             return [EStats]
 
@@ -72,8 +76,36 @@ eventAction command EHelp state = do
 
 eventAction _ _ _ = return []
 
-
 helpMessage :: IO ()
 helpMessage = do
     helpMess <- readFile "res/HelpMessage.in"
     putStrLn helpMess
+
+parseCommands :: String -> [Match] -> [Match]
+parseCommands console matches = 
+        foldr id matches parsedCommands
+    where
+        (str, parsedCommands) = parseCommandsRes $ words console
+
+
+parseCommandsRes :: [String] -> (String, [([Match] -> [Match])])
+parseCommandsRes [] = ("", [])
+parseCommandsRes (c:commands) = 
+    let
+        (args, resList) = parseCommandsRes commands
+    in
+        if c !! 0 == '-' then
+            ("", commandFromString c args : resList)
+        else
+            (c ++ args, resList)
+
+commandFromString :: String -> String -> ([Match] -> [Match])
+commandFromString command args =
+    if command == "-d" then
+        let
+            nameDeck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
+            comp = (\m -> compareMatch [(\m -> D $ myDeck m )] nameDeck m == EQ)
+        in
+            \matches -> filter comp matches
+    else
+        \matches -> id matches
