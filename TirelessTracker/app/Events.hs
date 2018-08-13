@@ -3,13 +3,16 @@ module Events
     Event (..),
     stateUpdate,
     helpMessage,
-    eventAction
+    eventAction,
+    parseSortSpecifiers
 ) where
 
 import AppState
 import MatchData
 import Matches
 import Data.Char
+import Data.Maybe
+import Data.List
 
 data Event =
     EAddMatch Match |
@@ -18,6 +21,7 @@ data Event =
     ESave String |
     EStats |
     EHelp |
+    ESort String |
     EExit 
     deriving (Eq, Show)
 
@@ -42,7 +46,7 @@ eventAction command EShow (AppState matches) =
         argMatches = parseCommands suffixCmd matches
     in do
         if length argMatches == 0 then
-            putStrLn "No Matches Found"
+            putStrLn "No Matches Found\n"
         else
             putStrLn $ showMatches argMatches
         return [EShow]
@@ -65,13 +69,20 @@ eventAction command (ESave empty) state =
             return [ESave fileName]
 
 eventAction command EStats (AppState matches) =
-        let 
-            (w, l, d) = winLossDrawPerc matches
-            numMatches = length matches
-        in do
-            putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "%. " ++ show numMatches ++ " total games.\n"
-            putStrLn $ oppDeckWinPercReport matches ++"\n"
-            return [EStats]
+    let 
+        (w, l, d) = winLossDrawPerc matches
+        numMatches = length matches
+    in do
+        putStrLn $ show w ++ "% won, " ++ show l ++ "% lost, " ++ show d ++ "%. " ++ show numMatches ++ " total games.\n"
+        putStrLn $ oppDeckWinPercReport matches ++"\n"
+        return [EStats]
+
+eventAction command (ESort empty) (AppState matches) =
+    let 
+        suffixCmd = drop 5 command
+    in do
+        return [ESort suffixCmd]
+    
 
 eventAction command EHelp state = do
     helpMessage
@@ -107,25 +118,28 @@ parseCommandsRes (c:commands) =
 
 commandFromString :: String -> String -> ([Match] -> [Match])
 commandFromString command args =
-    \matches -> filter (commandSpecifiers command args) matches
+    let
+        spec = commandSpecifiers command args
+    in
+    \matches -> filter (\m -> (spec m) == EQ) matches
 
-commandSpecifiers :: String -> String -> (Match -> Bool)
+commandSpecifiers :: String -> String -> (Match -> Ordering)
 commandSpecifiers command args =
     if command == "-d" then
         let
             deck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
         in
-            (\m -> compareMatch [(\m -> D $ myDeck m )] deck m == EQ)
+            (\m -> compareMatch [(\m -> D $ myDeck m )] deck m)
     else if command == "-o" then
         let
             deck = Match {myDeck = "", oppDeck = args, result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
         in
-            (\m -> compareMatch [(\m -> D $ oppDeck m )] deck m == EQ)
+            (\m -> compareMatch [(\m -> D $ oppDeck m )] deck m)
     -- else if command == "-w" then
     --     let
     --         deck = Match {myDeck = "", oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
     --     in
-    --         (\m -> compareMatch [(\m -> D $ myDeck m )] deck m == EQ)
+    --         (\m -> compareMatch [(\m -> D $ myDeck m )] deck m)
     else if command == "-t" then
         if (length $ words args) == 3 then
             let
@@ -135,13 +149,35 @@ commandSpecifiers command args =
                 day = fromIntegral $ argList !! 2
                 deck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay year month day,eventType = ""}
             in
-                (\m -> compareMatch [(\m -> Dy $ date m)] deck m == EQ)
+                (\m -> compareMatch [(\m -> Dy $ date m)] deck m)
         else
-            \m -> True
+            \m -> EQ
     else if command == "-e" then
         let
             deck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = args}
         in
-            (\m -> compareMatch [(\m -> D $ eventType m )] deck m == EQ)
+            (\m -> compareMatch [(\m -> D $ eventType m )] deck m)
     else
-        \m -> True
+        \m -> EQ
+
+parseSortSpecifiers :: String -> [Match] -> [Match]
+parseSortSpecifiers command = 
+    let 
+        commandList = catMaybes (map sortSpecifiers $ words command)
+    in
+        \matches -> sortBy (compareMatch commandList) matches
+
+sortSpecifiers :: String -> Maybe ( Match -> MatchTypes )
+sortSpecifiers command = 
+    if command == "-d" then
+        Just (\m -> D $ myDeck m )
+    else if command == "-o" then
+        Just (\m -> D $ oppDeck m )
+    -- else if command == "-w" then
+    --     Just (\m -> D $ result m )
+    else if command == "-t" then
+        Just (\m -> Dy $ date m)
+    else if command == "-e" then
+        Just (\m -> D $ eventType m )
+    else
+        Nothing

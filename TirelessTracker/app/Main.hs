@@ -34,6 +34,8 @@ cmdOptions command state =
             eventAction command (ELoad "") state
         else if isPrefixOf "save" commandLow then
             eventAction command (ESave "") state
+        else if isPrefixOf "sort" commandLow then
+            eventAction command (ESort "") state
         else if commandLow == "stats" then
             eventAction command EStats state
         else if commandLow == "help" then 
@@ -58,6 +60,12 @@ run (AppState matches) ((ELoad fileName):events) = do
 run (AppState matches) ((ESave fileName):events) = do
     encodeMDs fileName matches
     run (AppState matches) events
+
+run (AppState matches) ((ESort command):events) =
+    let
+        sortedMatches = parseSortSpecifiers command matches
+    in do
+        run (AppState sortedMatches) events
 
 run state (event:events) = do
         run newState events
