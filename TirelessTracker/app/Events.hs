@@ -88,7 +88,7 @@ parseCommands console matches =
         (str, parsedCommands) = parseCommandsRes $ words console
 
 
-parseCommandsRes :: [String] -> (String, [([Match] -> [Match])])
+parseCommandsRes :: [String] -> (String, [( [Match] -> [Match] )] )
 parseCommandsRes [] = ("", [])
 parseCommandsRes (c:commands) = 
     let
@@ -97,15 +97,45 @@ parseCommandsRes (c:commands) =
         if c !! 0 == '-' then
             ("", commandFromString c args : resList)
         else
-            (c ++ args, resList)
+            (c ++ " " ++ args, resList)
 
 commandFromString :: String -> String -> ([Match] -> [Match])
 commandFromString command args =
+    \matches -> filter (commandSpecifiers command args) matches
+
+commandSpecifiers :: String -> String -> (Match -> Bool)
+commandSpecifiers command args =
     if command == "-d" then
         let
-            nameDeck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
-            comp = (\m -> compareMatch [(\m -> D $ myDeck m )] nameDeck m == EQ)
+            deck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
         in
-            \matches -> filter comp matches
+            (\m -> compareMatch [(\m -> D $ myDeck m )] deck m == EQ)
+    else if command == "-o" then
+        let
+            deck = Match {myDeck = "", oppDeck = args, result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
+        in
+            (\m -> compareMatch [(\m -> D $ oppDeck m )] deck m == EQ)
+    -- else if command == "-w" then
+    --     let
+    --         deck = Match {myDeck = "", oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = ""}
+    --     in
+    --         (\m -> compareMatch [(\m -> D $ myDeck m )] deck m == EQ)
+    else if command == "-t" then
+        if (length $ words args) == 3 then
+            let
+                argList = map read $ words args
+                year = argList !! 0
+                month = fromIntegral $ argList !! 1
+                day = fromIntegral $ argList !! 2
+                deck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay year month day,eventType = ""}
+            in
+                (\m -> compareMatch [(\m -> Dy $ date m)] deck m == EQ)
+        else
+            \m -> True
+    else if command == "-e" then
+        let
+            deck = Match {myDeck = args, oppDeck = "", result = (Win, (0, 0)),date = makeDay 0 0 0,eventType = args}
+        in
+            (\m -> compareMatch [(\m -> D $ eventType m )] deck m == EQ)
     else
-        \matches -> id matches
+        \m -> True

@@ -1,11 +1,18 @@
+
 Tireless Tracker Help:
 
 Commands:
-
-help           - Displays help information
-add [Match]    - Adds the match argument if it is in MATCHFORMAT
-show           - Displays the list of matches
-exit           - Exits Tireless Tracker
+    
+help                       - Displays help information
+add [match]                - Adds [match] if it is in MATCHFORMAT
+show                       - Displays the list of matches
+    -d [deck name] - Only show matches played with [deck name]
+    -o [deck name] - Only show matches played against [deck name]
+    -t [year] [month] [day] - Only show matches played on the date
+    -e [event name] - only show matches played in [event name]
+load [file name]            - Load a file from [file name] location
+save [(optional)file name]  - saves matches at [file name] if specified, otherwise to the default location
+exit                       - Exits Tireless Tracker
 
 Other:
 
