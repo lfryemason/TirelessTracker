@@ -41,7 +41,10 @@ eventAction command EShow (AppState matches) =
         suffixCmd = drop 5 command
         argMatches = parseCommands suffixCmd matches
     in do
-        putStrLn $ showMatches argMatches
+        if length argMatches == 0 then
+            putStrLn "No Matches Found"
+        else
+            putStrLn $ showMatches argMatches
         return [EShow]
 
 eventAction command (ELoad empty) state =
@@ -97,7 +100,10 @@ parseCommandsRes (c:commands) =
         if c !! 0 == '-' then
             ("", commandFromString c args : resList)
         else
-            (c ++ " " ++ args, resList)
+            if args == "" then
+                (c ++ args, resList)
+            else
+                (c ++ " " ++ args, resList)
 
 commandFromString :: String -> String -> ([Match] -> [Match])
 commandFromString command args =
